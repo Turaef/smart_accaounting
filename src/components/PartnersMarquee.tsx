@@ -25,6 +25,11 @@ const PartnersMarquee: React.FC<PartnersMarqueeProps> = ({ className = '' }) => 
   }, []);
 
   const fetchPartners = async () => {
+    // If Supabase isn't configured, skip fetching and fall back to local data
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
     try {
       const { data, error } = await supabase
         .from('partners')
@@ -33,7 +38,7 @@ const PartnersMarquee: React.FC<PartnersMarqueeProps> = ({ className = '' }) => 
         
       if (error) {
         console.error('Error fetching partners:', error);
-      } else {
+      } else if (data) {
         setPartners(data as Partner[]);
       }
     } catch (error) {
