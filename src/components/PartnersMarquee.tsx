@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-// Removed direct import of supabase client to avoid SSR bundle issues
-// import { supabase } from '../supabaseClient';
+import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTelegram } from 'react-icons/fa';
 import { FiX, FiArrowRight } from 'react-icons/fi';
@@ -23,25 +22,10 @@ const PartnersMarquee: React.FC<PartnersMarqueeProps> = ({ className = '' }) => 
 
   useEffect(() => {
     fetchPartners();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchPartners = async () => {
     try {
-      // Only attempt to create the client in the browser and when envs exist
-      if (typeof window === 'undefined') {
-        setPartners([]);
-        return;
-      }
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-      if (!supabaseUrl || !supabaseAnonKey) {
-        setPartners([]);
-        return;
-      }
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
       const { data, error } = await supabase
         .from('partners')
         .select('*')
@@ -49,7 +33,7 @@ const PartnersMarquee: React.FC<PartnersMarqueeProps> = ({ className = '' }) => 
         
       if (error) {
         console.error('Error fetching partners:', error);
-      } else if (data) {
+      } else {
         setPartners(data as Partner[]);
       }
     } catch (error) {
@@ -92,8 +76,8 @@ const PartnersMarquee: React.FC<PartnersMarqueeProps> = ({ className = '' }) => 
       <section className={`py-20 bg-gradient-to-br from-gray-50 to-white overflow-hidden ${className}`}>
         <div className="container mx-auto px-4 mb-12">
           <div className="text-center mb-16" data-aos="fade-up">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-gray-900">Наши партнёры</h2>
-            <p className="text-gray-600 text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">Наши партнёры</h2>
+            <p className="text-gray-600 text-xl max-w-3xl mx-auto leading-relaxed">
               ООО "Smart Accounting" гордится сотрудничеством с ведущими компаниями и организациями
             </p>
           </div>
@@ -122,7 +106,7 @@ const PartnersMarquee: React.FC<PartnersMarqueeProps> = ({ className = '' }) => 
               const target = e.currentTarget as HTMLImageElement;
               target.style.display = 'none';
               if (target.parentElement) {
-                target.parentElement.innerHTML = `<div class=\"w-28 h-28 bg-gradient-to-br from-[#c9a875] to-[#b8956a] rounded-xl flex items-center justify-center text-white text-xl font-bold shadow-inner\">${partner.name.substring(0, 2).toUpperCase()}</div>`;
+                target.parentElement.innerHTML = `<div class="w-28 h-28 bg-gradient-to-br from-[#c9a875] to-[#b8956a] rounded-xl flex items-center justify-center text-white text-xl font-bold shadow-inner">${partner.name.substring(0, 2).toUpperCase()}</div>`;
               }
             }}
           />
@@ -193,7 +177,7 @@ const PartnersMarquee: React.FC<PartnersMarqueeProps> = ({ className = '' }) => 
                         const target = e.currentTarget as HTMLImageElement;
                         target.style.display = 'none';
                         if (target.parentElement) {
-                          target.parentElement.innerHTML = `<div class=\"w-24 h-24 bg-gradient-to-br from-[#c9a875] to-[#b8956a] rounded-xl flex items-center justify-center text-white text-lg font-bold shadow-inner\">${partner.name.substring(0, 2).toUpperCase()}</div>`;
+                          target.parentElement.innerHTML = `<div class="w-24 h-24 bg-gradient-to-br from-[#c9a875] to-[#b8956a] rounded-xl flex items-center justify-center text-white text-lg font-bold shadow-inner">${partner.name.substring(0, 2).toUpperCase()}</div>`;
                         }
                       }}
                     />
@@ -235,13 +219,47 @@ const PartnersMarquee: React.FC<PartnersMarqueeProps> = ({ className = '' }) => 
       </div>
 
       <style jsx>{`
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        @keyframes scroll-left-to-right { 0% { transform: translateX(-100%);} 100% { transform: translateX(0%);} }
-        @keyframes scroll-right-to-left { 0% { transform: translateX(0%);} 100% { transform: translateX(-100%);} }
-        .animate-scroll-left-to-right { animation: scroll-left-to-right 30s linear infinite; will-change: transform; }
-        .animate-scroll-right-to-left { animation: scroll-right-to-left 30s linear infinite; will-change: transform; }
-        .animate-scroll-left-to-right:hover, .animate-scroll-right-to-left:hover { animation-play-state: paused; }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        
+        @keyframes scroll-left-to-right {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(0%);
+          }
+        }
+        
+        @keyframes scroll-right-to-left {
+          0% {
+            transform: translateX(0%);
+          }
+          100% {
+            transform: translateX(-100%);
+          }
+        }
+        
+        .animate-scroll-left-to-right {
+          animation: scroll-left-to-right 30s linear infinite;
+          will-change: transform;
+        }
+        
+        .animate-scroll-right-to-left {
+          animation: scroll-right-to-left 30s linear infinite;
+          will-change: transform;
+        }
+        
+        /* Pause animation on hover for better UX */
+        .animate-scroll-left-to-right:hover,
+        .animate-scroll-right-to-left:hover {
+          animation-play-state: paused;
+        }
       `}</style>
 
       <AnimatePresence>
@@ -265,7 +283,7 @@ const PartnersMarquee: React.FC<PartnersMarqueeProps> = ({ className = '' }) => 
                 onClick={() => setIsModalOpen(false)} 
                 className="absolute top-4 right-4 text-gray-400 hover:text-gray-800 transition-colors duration-300 p-2 rounded-full bg-gray-100 hover:bg-gray-200"
               >
-                <FaTelegram size={24} />
+                <FiX size={24} />
               </button>
 
               <div className="w-20 h-20 bg-[#c9a875]/20 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -286,6 +304,7 @@ const PartnersMarquee: React.FC<PartnersMarqueeProps> = ({ className = '' }) => 
                 >
                   <FaTelegram size={22} />
                   <span>Написать в Telegram</span>
+                  <FiArrowRight size={22} />
                 </a>
                 <p className="text-gray-500 text-base">
                   или позвоните нам: 
