@@ -1,0 +1,2 @@
+Hero image will be placed in public/images/hero-accounting.jpg
+Instructions for hero image: 1. Find a high-quality image of a professional accountant working in an office setting 2. Image dimensions should be at least 1920x1080px for best results 3. Save it as hero-accounting.jpg in this folder 4. Choose an image with good lighting and a professional atmosphere 5. Ideally, the image should have some darker areas where text will be overlaid for better readability 6. If needed, optimize the image size with a tool like TinyPNG to improve page load speed
